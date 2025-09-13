@@ -8,6 +8,7 @@ class ImageWaveApp {
     initializeElements() {
         this.uploadArea = document.getElementById('uploadArea');
         this.fileInput = document.getElementById('fileInput');
+        this.chooseFileBtn = document.getElementById('chooseFileBtn');
         this.loading = document.getElementById('loading');
         this.viewerSection = document.getElementById('viewerSection');
         this.originalImage = document.getElementById('originalImage');
@@ -44,9 +45,18 @@ class ImageWaveApp {
             }
         });
 
-        // Click to upload
-        this.uploadArea.addEventListener('click', () => {
+        // Choose file button
+        this.chooseFileBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event bubbling
             this.fileInput.click();
+        });
+
+        // Click to upload (but not on button)
+        this.uploadArea.addEventListener('click', (e) => {
+            // Only trigger if not clicking on the button
+            if (e.target !== this.chooseFileBtn && !this.chooseFileBtn.contains(e.target)) {
+                this.fileInput.click();
+            }
         });
 
         // Download button
