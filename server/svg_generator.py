@@ -125,12 +125,12 @@ class SVGGenerator:
         x_coords = wave_data['x_coords']
         y_coords = wave_data['y_coords']
         
+        step = 1
         # Reduce points significantly for smaller file size
-        step = max(1, len(x_coords) // 50)
-        
-        if step > 1:
-            x_coords = x_coords[::step]
-            y_coords = y_coords[::step]
+        # step = max(1, len(x_coords) // 50)
+        # if step > 1:
+        #     x_coords = x_coords[::step]
+        #     y_coords = y_coords[::step]
         
         if len(x_coords) == 0:
             return ""

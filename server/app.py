@@ -9,11 +9,11 @@ from sine_generator import SineGenerator
 from svg_generator import SVGGenerator
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 2024 * 2024  # 16MB max file size
 
 # Initialize processors
-image_processor = ImageProcessor(line_height=8)
-sine_generator = SineGenerator(line_height=8)
+image_processor = ImageProcessor(line_height=16)
+sine_generator = SineGenerator(line_height=16)
 svg_generator = SVGGenerator()
 
 # Allowed file extensions

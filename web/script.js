@@ -21,6 +21,7 @@ class ImageWaveApp {
     bindEvents() {
         // File input change
         this.fileInput.addEventListener('change', (e) => {
+            console.log('File input changed:', e.target.files.length, 'files');
             if (e.target.files.length > 0) {
                 this.handleFileUpload(e.target.files[0]);
             }
@@ -47,7 +48,10 @@ class ImageWaveApp {
 
         // Choose file button
         this.chooseFileBtn.addEventListener('click', (e) => {
+            console.log('Choose file button clicked');
             e.stopPropagation(); // Prevent event bubbling
+            // Clear the input value before opening dialog to allow reselection of same file
+            this.fileInput.value = '';
             this.fileInput.click();
         });
 
@@ -55,6 +59,9 @@ class ImageWaveApp {
         this.uploadArea.addEventListener('click', (e) => {
             // Only trigger if not clicking on the button
             if (e.target !== this.chooseFileBtn && !this.chooseFileBtn.contains(e.target)) {
+                console.log('Upload area clicked');
+                // Clear the input value before opening dialog to allow reselection of same file
+                this.fileInput.value = '';
                 this.fileInput.click();
             }
         });
@@ -68,27 +75,34 @@ class ImageWaveApp {
     }
 
     async handleFileUpload(file) {
+        console.log('handleFileUpload called with:', file.name, file.type, file.size);
+        
         if (!this.isValidImageFile(file)) {
             alert('Please select a valid image file (PNG, JPG, JPEG, GIF, BMP, TIFF)');
             return;
         }
 
+        console.log('File is valid, starting upload...');
         this.showLoading();
 
         try {
             const formData = new FormData();
             formData.append('file', file);
 
+            console.log('Sending request to /upload...');
             const response = await fetch('/upload', {
                 method: 'POST',
                 body: formData
             });
+
+            console.log('Response received:', response.status, response.statusText);
 
             if (!response.ok) {
                 throw new Error(`Upload failed: ${response.statusText}`);
             }
 
             const data = await response.json();
+            console.log('Response data:', data);
             
             if (data.error) {
                 throw new Error(data.error);
