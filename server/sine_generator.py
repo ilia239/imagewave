@@ -1,15 +1,18 @@
 import numpy as np
 import logging
 from frequency_mapper import FrequencyMapper
+from amplitude_mapper import AmplitudeMapper
+from config.config import LINE_HEIGHT, AMPLITUDE
 
 logger = logging.getLogger(__name__)
 
 class SineGenerator:
-    def __init__(self, line_height=16, amplitude_factor=0.25, samples_per_pixel=1):
-        self.line_height = line_height
-        self.amplitude = line_height * amplitude_factor  # Wave amplitude
+    def __init__(self, line_height=None, amplitude_factor=None, samples_per_pixel=1):
+        self.line_height = line_height or LINE_HEIGHT
+        self.base_amplitude = amplitude_factor or AMPLITUDE
         self.samples_per_pixel = samples_per_pixel
         self.frequency_mapper = FrequencyMapper()
+        self.amplitude_mapper = AmplitudeMapper()
     
     def generate_sine_waves(self, processed_data):
         """Generate sine wave data for all lines in the image"""
@@ -18,7 +21,7 @@ class SineGenerator:
         num_lines = processed_data['num_lines']
         
         logger.debug(f"Generating sine waves for {num_lines} lines, width={width}")
-        logger.debug(f"Line height: {self.line_height}, Amplitude: {self.amplitude}")
+        logger.debug(f"Line height: {self.line_height}, Base amplitude: {self.base_amplitude}")
         
         sine_waves = []
         
@@ -49,7 +52,9 @@ class SineGenerator:
         # Calculate sine wave
         # Scale frequency to image width for appropriate wave count
         wave_frequency = frequency * 2 * np.pi / width
-        y_coords = base_y + self.amplitude * np.sin(wave_frequency * x_coords)
+        amplitude_factor = self.amplitude_mapper.get_amplitude_factor(avg_intensity)
+        amplitude = self.line_height * amplitude_factor
+        y_coords = base_y + amplitude * np.sin(wave_frequency * x_coords)
         
         if line_idx is not None and line_idx < 5:
             logger.debug(f"Line {line_idx}: wave_frequency={wave_frequency:.4f}, base_y={base_y:.2f}")
@@ -109,8 +114,10 @@ class SineGenerator:
                     phase += wave_frequency * dx
 
             logger.debug(f"Phase: {phase}")            
-            # Calculate sine value using accumulated phase
-            y_coords[sample_idx] = base_y + self.amplitude * np.sin(phase)
+            # Calculate sine value using accumulated phase with variable amplitude
+            amplitude_factor = self.amplitude_mapper.get_amplitude_factor(intensity)
+            amplitude = self.line_height * amplitude_factor
+            y_coords[sample_idx] = base_y + amplitude * np.sin(phase)
             
             logger.debug(f"y_coord[{sample_idx}] = {y_coords[sample_idx]:.2f}")
             prev_frequency = frequency

@@ -1,51 +1,45 @@
-import csv
-import numpy as np
 import logging
-from pathlib import Path
+import numpy as np
+from config.config import FREQUENCY_MIN, FREQUENCY_MAX
 
 logger = logging.getLogger(__name__)
 
 class FrequencyMapper:
-    def __init__(self, csv_path=None):
-        if csv_path is None:
-            csv_path = Path(__file__).parent / "config" / "frequency_map.csv"
+    def __init__(self):
+        self.min_frequency = FREQUENCY_MIN
+        self.max_frequency = FREQUENCY_MAX
+        self.frequency_range = self.max_frequency - self.min_frequency
         
-        self.intensities = []
-        self.frequencies = []
-        self._load_mapping(csv_path)
-    
-    def _load_mapping(self, csv_path):
-        logger.debug(f"Loading frequency mapping from: {csv_path}")
-        
-        with open(csv_path, 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                self.intensities.append(float(row['intensity']))
-                self.frequencies.append(float(row['frequency']))
-        
-        # Sort by intensity for interpolation
-        sorted_pairs = sorted(zip(self.intensities, self.frequencies))
-        self.intensities, self.frequencies = zip(*sorted_pairs)
-        self.intensities = list(self.intensities)
-        self.frequencies = list(self.frequencies)
-        
-        logger.debug(f"Loaded {len(self.intensities)} mapping points:")
-        for i, f in zip(self.intensities, self.frequencies):
-            logger.debug(f"  Intensity {i} -> Frequency {f}")
-        
-        logger.debug(f"Intensity range: {min(self.intensities)} - {max(self.intensities)}")
-        logger.debug(f"Frequency range: {min(self.frequencies)} - {max(self.frequencies)}")
+        logger.debug(f"FrequencyMapper initialized with range: {self.min_frequency} - {self.max_frequency}")
     
     def get_frequency(self, intensity):
-        """Convert pixel intensity (0-255) to sine wave frequency using linear interpolation"""
-        if intensity <= self.intensities[0]:
-            return self.frequencies[0]
-        if intensity >= self.intensities[-1]:
-            return self.frequencies[-1]
+        """Convert pixel intensity (0-255) to sine wave frequency using linear interpolation
         
-        # Linear interpolation
-        return np.interp(intensity, self.intensities, self.frequencies)
+        Args:
+            intensity: Pixel intensity (0-255)
+            
+        Returns:
+            frequency: Linear interpolation between FREQUENCY_MAX (intensity 0) 
+                      and FREQUENCY_MIN (intensity 255)
+        """
+        # Clamp intensity to valid range
+        intensity = max(0, min(255, intensity))
+        
+        # Linear interpolation: higher intensity (brighter) = lower frequency
+        # intensity 0 (black) -> FREQUENCY_MAX
+        # intensity 255 (white) -> FREQUENCY_MIN
+        normalized_intensity = intensity / 255.0
+        frequency = self.max_frequency - (normalized_intensity * self.frequency_range)
+        
+        return frequency
     
     def get_frequencies_batch(self, intensities):
         """Convert multiple intensities to frequencies efficiently"""
-        return np.interp(intensities, self.intensities, self.frequencies)
+        # Clamp intensities to valid range
+        intensities = np.clip(intensities, 0, 255)
+        
+        # Linear interpolation for batch processing
+        normalized_intensities = intensities / 255.0
+        frequencies = self.max_frequency - (normalized_intensities * self.frequency_range)
+        
+        return frequencies
