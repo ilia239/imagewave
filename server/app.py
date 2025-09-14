@@ -12,8 +12,8 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 2024 * 2024  # 16MB max file size
 
 # Initialize processors
-image_processor = ImageProcessor(line_height=16)
-sine_generator = SineGenerator(line_height=16)
+image_processor = ImageProcessor()
+sine_generator = SineGenerator()
 svg_generator = SVGGenerator()
 
 # Allowed file extensions

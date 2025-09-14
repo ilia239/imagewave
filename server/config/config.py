@@ -5,9 +5,9 @@ LINE_HEIGHT = 32  # Height of each horizontal line in pixels (default: 16)
 AMPLITUDE = 2.0   # Base amplitude of the sine waves (default: 2.0)
 
 # Amplitude and Frequency Mapping
-AMPLITUDE_MIN = 0.1   # Minimum amplitude factor (for intensity 255)
+AMPLITUDE_MIN = 0.01   # Minimum amplitude factor (for intensity 255)
 AMPLITUDE_MAX = 0.5  # Maximum amplitude factor (for intensity 0)
-FREQUENCY_MIN = 0.9   # Minimum frequency (for intensity 255)
+FREQUENCY_MIN = 0.001   # Minimum frequency (for intensity 255)
 FREQUENCY_MAX = 2.0   # Maximum frequency (for intensity 0)
 
 # SVG Generation Parameters
