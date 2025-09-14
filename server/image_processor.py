@@ -1,14 +1,15 @@
 from PIL import Image
 import numpy as np
 import logging
+from config.config import LINE_HEIGHT
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class ImageProcessor:
-    def __init__(self, line_height=8):
-        self.line_height = line_height
+    def __init__(self, line_height=None):
+        self.line_height = line_height or LINE_HEIGHT
     
     def load_image(self, image_path):
         """Load and convert image to grayscale"""
