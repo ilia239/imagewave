@@ -17,6 +17,7 @@ class ImageWaveApp {
         this.imageDimensions = document.getElementById('imageDimensions');
         this.linesCount = document.getElementById('linesCount');
         this.downloadBtn = document.getElementById('downloadSvg');
+        this.saveSvgBtn = document.getElementById('saveSvg');
 
         // Configuration elements
         this.toggleConfigBtn = document.getElementById('toggleConfig');
@@ -88,8 +89,15 @@ class ImageWaveApp {
             }
         });
 
-        // Download button
+        // Download button (view in browser)
         this.downloadBtn.addEventListener('click', () => {
+            if (this.currentData && this.currentData.svg_file) {
+                window.open(this.currentData.svg_file, '_blank');
+            }
+        });
+
+        // Save SVG button (download with enhanced filename)
+        this.saveSvgBtn.addEventListener('click', () => {
             if (this.currentData && this.currentData.id) {
                 window.open(`/download/${this.currentData.id}`, '_blank');
             }
