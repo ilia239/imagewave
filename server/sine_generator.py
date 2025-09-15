@@ -81,7 +81,7 @@ class SineGenerator:
         # Each vertical column has its own intensity -> frequency
         # This creates wave segments where frequency varies along x-axis
         
-        if line_idx is not None and line_idx < 3:
+        if line_idx is not None and line_idx < 2:
             logger.debug(f"Line {line_idx}: Processing {len(column_intensities)} columns")
             logger.debug(f"Line {line_idx}: Column intensities (first 5): {[round(x, 1) for x in column_intensities[:5]]}")
         
@@ -90,7 +90,9 @@ class SineGenerator:
         x_coords = np.linspace(0, width-1, num_samples)
         y_coords = np.zeros(num_samples)
 
-        logger.debug(f"num_samples: {num_samples}, width: {width}, samples_per_pixel: {self.samples_per_pixel}, len(x_coords): {len(x_coords)} size of y_coords: {len(y_coords)}")
+        # Only log summary info once per line
+        if line_idx is not None and line_idx < 3:
+            logger.debug(f"Line {line_idx}: num_samples={num_samples}, width={width}")
 
         
         # Calculate cumulative phase for continuous wave generation
@@ -104,11 +106,12 @@ class SineGenerator:
             frequency = self.frequency_mapper.get_frequency(intensity)
             
 
-            logger.debug(f"Line {line_idx}: x={x_pos:.2f}, col={col_idx}, intensity={intensity:.2f}, freq={frequency:.2f}")
+            # Only log first few samples for debugging
+            if line_idx is not None and line_idx < 2 and sample_idx < 5:
+                logger.debug(f"Line {line_idx}, Sample {sample_idx}: x={x_pos:.2f}, col={col_idx}, intensity={intensity:.2f}, freq={frequency:.2f}")
 
             # Calculate wave frequency scaled for image width
             wave_frequency = frequency #* 2 * np.pi / width
-            logger.debug(f"Freq: {frequency}, Wave Freq: {wave_frequency}")
 
             # For smooth transitions, accumulate phase based on x position
             if sample_idx > 0:
@@ -121,18 +124,16 @@ class SineGenerator:
                 else:
                     phase += wave_frequency * dx
 
-            logger.debug(f"Phase: {phase}")            
+            
             # Calculate sine value using accumulated phase with variable amplitude
             amplitude_factor = self.amplitude_mapper.get_amplitude_factor(intensity)
             amplitude = self.line_height * amplitude_factor
             y_coords[sample_idx] = base_y + amplitude * np.sin(phase)
             
-            logger.debug(f"y_coord[{sample_idx}] = {y_coords[sample_idx]:.2f}")
             prev_frequency = frequency
             
             # if line_idx is not None and line_idx < 3 and col_idx < 5 and sample_idx % self.samples_per_pixel == 0:
             #     logger.debug(f"Line {line_idx}, Col {col_idx}: intensity={intensity:.2f} -> freq={frequency:.2f} -> y={y_coords[sample_idx]:.2f}")
-            logger.debug(f"---\n")
         
         return {
             'x_coords': x_coords,

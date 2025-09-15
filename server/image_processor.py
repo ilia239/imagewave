@@ -1,10 +1,11 @@
 from PIL import Image
 import numpy as np
 import logging
-from config.config import LINE_HEIGHT
+from config.config import LINE_HEIGHT, DEBUG_LOGGING
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+log_level = logging.DEBUG if DEBUG_LOGGING else logging.INFO
+logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 
 class ImageProcessor:

@@ -16,4 +16,4 @@ SVG_STROKE_COLOR = "black"  # SVG stroke color (default: "black")
 SVG_FILL = "none"       # SVG fill (default: "none")
 
 # Debug Settings
-DEBUG_LOGGING = True    # Enable debug logging (default: True)
+DEBUG_LOGGING = False   # Enable debug logging (default: False)
