@@ -4,11 +4,11 @@ from config.config import AMPLITUDE_MIN, AMPLITUDE_MAX
 logger = logging.getLogger(__name__)
 
 class AmplitudeMapper:
-    def __init__(self):
-        self.min_amplitude = AMPLITUDE_MIN
-        self.max_amplitude = AMPLITUDE_MAX
+    def __init__(self, min_amplitude=None, max_amplitude=None):
+        self.min_amplitude = min_amplitude if min_amplitude is not None else AMPLITUDE_MIN
+        self.max_amplitude = max_amplitude if max_amplitude is not None else AMPLITUDE_MAX
         self.amplitude_range = self.max_amplitude - self.min_amplitude
-        
+
         logger.debug(f"AmplitudeMapper initialized with range: {self.min_amplitude} - {self.max_amplitude}")
     
     def get_amplitude_factor(self, intensity):

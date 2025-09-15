@@ -3,6 +3,7 @@ class ImageWaveApp {
         this.currentData = null;
         this.initializeElements();
         this.bindEvents();
+        this.loadConfiguration();
     }
 
     initializeElements() {
@@ -16,6 +17,27 @@ class ImageWaveApp {
         this.imageDimensions = document.getElementById('imageDimensions');
         this.linesCount = document.getElementById('linesCount');
         this.downloadBtn = document.getElementById('downloadSvg');
+
+        // Configuration elements
+        this.toggleConfigBtn = document.getElementById('toggleConfig');
+        this.configPanel = document.getElementById('configPanel');
+        this.frequencyMinInput = document.getElementById('frequencyMin');
+        this.frequencyMaxInput = document.getElementById('frequencyMax');
+        this.amplitudeMinInput = document.getElementById('amplitudeMin');
+        this.amplitudeMaxInput = document.getElementById('amplitudeMax');
+        this.lineHeightInput = document.getElementById('lineHeight');
+        this.updateConfigBtn = document.getElementById('updateConfig');
+        this.computeAgainBtn = document.getElementById('computeAgain');
+        this.resetConfigBtn = document.getElementById('resetConfig');
+
+        // Default configuration values
+        this.defaultConfig = {
+            frequency_min: 0.001,
+            frequency_max: 3.0,
+            amplitude_min: 0.01,
+            amplitude_max: 0.9,
+            line_height: 32
+        };
     }
 
     bindEvents() {
@@ -71,6 +93,23 @@ class ImageWaveApp {
             if (this.currentData && this.currentData.svg_file) {
                 window.open(this.currentData.svg_file, '_blank');
             }
+        });
+
+        // Configuration events
+        this.toggleConfigBtn.addEventListener('click', () => {
+            this.toggleConfigPanel();
+        });
+
+        this.updateConfigBtn.addEventListener('click', () => {
+            this.updateConfiguration();
+        });
+
+        this.computeAgainBtn.addEventListener('click', () => {
+            this.reprocessImage();
+        });
+
+        this.resetConfigBtn.addEventListener('click', () => {
+            this.resetConfiguration();
         });
     }
 
@@ -155,10 +194,134 @@ class ImageWaveApp {
         // Show viewer
         this.viewerSection.style.display = 'block';
 
+        // Show compute again button if we have data
+        if (this.currentData) {
+            this.computeAgainBtn.style.display = 'inline-block';
+        }
+
         // Initialize viewer controls
         if (window.viewer) {
             window.viewer.initialize();
         }
+    }
+
+    async loadConfiguration() {
+        console.log('Loading configuration...');
+        try {
+            const response = await fetch('/config');
+            console.log('Config response status:', response.status);
+            if (response.ok) {
+                const config = await response.json();
+                console.log('Received configuration:', config);
+                this.populateConfigInputs(config);
+            } else {
+                console.warn('Failed to load configuration, using defaults');
+                this.populateConfigInputs(this.defaultConfig);
+            }
+        } catch (error) {
+            console.error('Error loading configuration:', error);
+            this.populateConfigInputs(this.defaultConfig);
+        }
+    }
+
+    populateConfigInputs(config) {
+        console.log('Populating config inputs with:', config);
+        this.frequencyMinInput.value = config.frequency_min;
+        this.frequencyMaxInput.value = config.frequency_max;
+        this.amplitudeMinInput.value = config.amplitude_min;
+        this.amplitudeMaxInput.value = config.amplitude_max;
+        this.lineHeightInput.value = config.line_height;
+        console.log('Config inputs populated');
+    }
+
+    toggleConfigPanel() {
+        this.configPanel.classList.toggle('hidden');
+    }
+
+    async updateConfiguration() {
+        console.log('Update configuration button clicked');
+        const config = {
+            frequency_min: parseFloat(this.frequencyMinInput.value),
+            frequency_max: parseFloat(this.frequencyMaxInput.value),
+            amplitude_min: parseFloat(this.amplitudeMinInput.value),
+            amplitude_max: parseFloat(this.amplitudeMaxInput.value),
+            line_height: parseInt(this.lineHeightInput.value)
+        };
+
+        console.log('Configuration to send:', config);
+
+        // Validate configuration
+        if (config.frequency_min >= config.frequency_max) {
+            alert('Frequency Min must be less than Frequency Max');
+            return;
+        }
+
+        if (config.amplitude_min >= config.amplitude_max) {
+            alert('Amplitude Min must be less than Amplitude Max');
+            return;
+        }
+
+        try {
+            console.log('Sending POST request to /config');
+            const response = await fetch('/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(config)
+            });
+
+            console.log('Response status:', response.status);
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Update result:', result);
+                alert('Configuration updated successfully!');
+                // Show compute again button if we have data
+                if (this.currentData) {
+                    this.computeAgainBtn.style.display = 'inline-block';
+                }
+            } else {
+                const error = await response.text();
+                console.error('Update failed:', error);
+                alert('Failed to update configuration');
+            }
+        } catch (error) {
+            console.error('Error updating configuration:', error);
+            alert('Error updating configuration');
+        }
+    }
+
+    async reprocessImage() {
+        if (!this.currentData || !this.currentData.id) {
+            alert('No image to reprocess');
+            return;
+        }
+
+        this.showLoading();
+
+        try {
+            const response = await fetch(`/reprocess/${this.currentData.id}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.currentData = { ...this.currentData, ...data };
+                await this.displayResults(this.currentData);
+            } else {
+                const error = await response.json();
+                throw new Error(error.error || 'Reprocessing failed');
+            }
+        } catch (error) {
+            console.error('Reprocessing error:', error);
+            alert(`Error: ${error.message}`);
+            this.hideLoading();
+        }
+    }
+
+    async resetConfiguration() {
+        this.populateConfigInputs(this.defaultConfig);
+        await this.updateConfiguration();
     }
 }
 

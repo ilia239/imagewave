@@ -7,6 +7,7 @@ from pathlib import Path
 from image_processor import ImageProcessor
 from sine_generator import SineGenerator
 from svg_generator import SVGGenerator
+from config import config
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 2024 * 2024  # 16MB max file size
@@ -116,28 +117,81 @@ def handle_config():
     """Get or update configuration"""
     if request.method == 'GET':
         return jsonify({
-            'line_height': image_processor.line_height,
-            'amplitude_factor': sine_generator.amplitude / sine_generator.line_height,
-            'samples_per_pixel': sine_generator.samples_per_pixel
+            'line_height': config.LINE_HEIGHT,
+            'amplitude_min': config.AMPLITUDE_MIN,
+            'amplitude_max': config.AMPLITUDE_MAX,
+            'frequency_min': config.FREQUENCY_MIN,
+            'frequency_max': config.FREQUENCY_MAX
         })
-    
+
     elif request.method == 'POST':
-        config = request.get_json()
-        
-        if 'line_height' in config:
-            line_height = int(config['line_height'])
-            image_processor.line_height = line_height
-            sine_generator.line_height = line_height
-            sine_generator.amplitude = line_height * (sine_generator.amplitude / sine_generator.line_height)
-        
-        if 'amplitude_factor' in config:
-            amplitude_factor = float(config['amplitude_factor'])
-            sine_generator.amplitude = sine_generator.line_height * amplitude_factor
-        
-        if 'samples_per_pixel' in config:
-            sine_generator.samples_per_pixel = int(config['samples_per_pixel'])
-        
+        data = request.get_json()
+
+        # Update configuration values
+        if 'amplitude_min' in data:
+            config.AMPLITUDE_MIN = float(data['amplitude_min'])
+        if 'amplitude_max' in data:
+            config.AMPLITUDE_MAX = float(data['amplitude_max'])
+        if 'frequency_min' in data:
+            config.FREQUENCY_MIN = float(data['frequency_min'])
+        if 'frequency_max' in data:
+            config.FREQUENCY_MAX = float(data['frequency_max'])
+        if 'line_height' in data:
+            config.LINE_HEIGHT = int(data['line_height'])
+
+        # Reinitialize processors with new configuration
+        global image_processor, sine_generator, svg_generator
+        image_processor = ImageProcessor()
+        sine_generator = SineGenerator(
+            line_height=config.LINE_HEIGHT,
+            frequency_min=config.FREQUENCY_MIN,
+            frequency_max=config.FREQUENCY_MAX,
+            amplitude_min=config.AMPLITUDE_MIN,
+            amplitude_max=config.AMPLITUDE_MAX
+        )
+        svg_generator = SVGGenerator()
+
         return jsonify({'status': 'updated'})
+
+@app.route('/reprocess/<file_id>', methods=['POST'])
+def reprocess_image(file_id):
+    """Reprocess an existing image with current configuration"""
+    try:
+        # Find the original image file
+        original_files = [f for f in os.listdir('uploads') if f.startswith(file_id) and not f.endswith('.svg')]
+        if not original_files:
+            return jsonify({'error': 'Original image not found'}), 404
+
+        original_path = f"uploads/{original_files[0]}"
+
+        # Process image with current configuration
+        processed_data = image_processor.process_image(original_path)
+
+        # Generate sine waves
+        sine_waves = sine_generator.generate_sine_waves(processed_data)
+
+        # Generate SVG
+        svg_content = svg_generator.generate_optimized_svg(
+            sine_waves,
+            processed_data['width'],
+            processed_data['height']
+        )
+
+        # Save SVG file
+        svg_path = f"uploads/{file_id}.svg"
+        with open(svg_path, 'w') as f:
+            f.write(svg_content)
+
+        return jsonify({
+            'id': file_id,
+            'svg_file': f'/uploads/{file_id}.svg',
+            'width': processed_data['width'],
+            'height': processed_data['height'],
+            'num_lines': processed_data['num_lines']
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Create uploads directory if it doesn't exist

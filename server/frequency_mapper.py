@@ -5,11 +5,11 @@ from config.config import FREQUENCY_MIN, FREQUENCY_MAX
 logger = logging.getLogger(__name__)
 
 class FrequencyMapper:
-    def __init__(self):
-        self.min_frequency = FREQUENCY_MIN
-        self.max_frequency = FREQUENCY_MAX
+    def __init__(self, min_frequency=None, max_frequency=None):
+        self.min_frequency = min_frequency if min_frequency is not None else FREQUENCY_MIN
+        self.max_frequency = max_frequency if max_frequency is not None else FREQUENCY_MAX
         self.frequency_range = self.max_frequency - self.min_frequency
-        
+
         logger.debug(f"FrequencyMapper initialized with range: {self.min_frequency} - {self.max_frequency}")
     
     def get_frequency(self, intensity):

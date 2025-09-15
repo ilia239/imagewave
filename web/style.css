@@ -34,6 +34,120 @@ header p {
     opacity: 0.9;
 }
 
+/* Configuration Panel Styles */
+.config-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 30px;
+}
+
+.config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 2px solid #eee;
+}
+
+.config-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.4em;
+}
+
+.toggle-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+    background: #764ba2;
+    transform: translateY(-1px);
+}
+
+.config-panel {
+    padding: 30px;
+    display: block;
+}
+
+.config-panel.hidden {
+    display: none;
+}
+
+.config-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.config-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.config-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.config-group input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.2s ease;
+}
+
+.config-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.config-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+}
+
+.config-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.config-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.config-btn.secondary {
+    background: #6c757d;
+}
+
+.config-btn.secondary:hover {
+    background: #5a6268;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
 .upload-section {
     background: white;
     border-radius: 15px;
@@ -236,23 +350,45 @@ button:hover {
     .viewer-container {
         grid-template-columns: 1fr;
     }
-    
+
     .controls {
         flex-direction: column;
         gap: 15px;
         align-items: stretch;
     }
-    
+
     .info-section {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .container {
         padding: 10px;
     }
-    
+
     header h1 {
         font-size: 2em;
+    }
+
+    .config-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .config-group {
+        min-width: auto;
+    }
+
+    .config-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .config-header {
+        padding: 15px 20px;
+    }
+
+    .config-panel {
+        padding: 20px;
     }
 }

@@ -2,17 +2,25 @@ import numpy as np
 import logging
 from frequency_mapper import FrequencyMapper
 from amplitude_mapper import AmplitudeMapper
-from config.config import LINE_HEIGHT, AMPLITUDE
+from config.config import LINE_HEIGHT, AMPLITUDE, FREQUENCY_MIN, FREQUENCY_MAX, AMPLITUDE_MIN, AMPLITUDE_MAX
 
 logger = logging.getLogger(__name__)
 
 class SineGenerator:
-    def __init__(self, line_height=None, amplitude_factor=None, samples_per_pixel=1):
+    def __init__(self, line_height=None, amplitude_factor=None, samples_per_pixel=1,
+                 frequency_min=None, frequency_max=None, amplitude_min=None, amplitude_max=None):
         self.line_height = line_height or LINE_HEIGHT
         self.base_amplitude = amplitude_factor or AMPLITUDE
         self.samples_per_pixel = samples_per_pixel
-        self.frequency_mapper = FrequencyMapper()
-        self.amplitude_mapper = AmplitudeMapper()
+
+        # Use provided parameters or fall back to config values
+        freq_min = frequency_min if frequency_min is not None else FREQUENCY_MIN
+        freq_max = frequency_max if frequency_max is not None else FREQUENCY_MAX
+        amp_min = amplitude_min if amplitude_min is not None else AMPLITUDE_MIN
+        amp_max = amplitude_max if amplitude_max is not None else AMPLITUDE_MAX
+
+        self.frequency_mapper = FrequencyMapper(freq_min, freq_max)
+        self.amplitude_mapper = AmplitudeMapper(amp_min, amp_max)
     
     def generate_sine_waves(self, processed_data):
         """Generate sine wave data for all lines in the image"""
