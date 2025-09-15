@@ -159,7 +159,7 @@ header p {
 .upload-area {
     border: 3px dashed #667eea;
     border-radius: 10px;
-    padding: 60px 20px;
+    padding: 30px 20px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -176,8 +176,8 @@ header p {
 }
 
 .upload-icon {
-    font-size: 4em;
-    margin-bottom: 20px;
+    font-size: 2.5em;
+    margin-bottom: 15px;
 }
 
 .upload-content p {
