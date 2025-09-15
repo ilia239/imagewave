@@ -105,10 +105,16 @@ def get_conversion_status(file_id):
 
 @app.route('/download/<file_id>')
 def download_svg(file_id):
-    """Download generated SVG file"""
+    """Download generated SVG file with configuration settings in filename"""
     svg_path = f"uploads/{file_id}.svg"
     if os.path.exists(svg_path):
-        return send_file(svg_path, as_attachment=True, download_name=f'{file_id}.svg')
+        # Create filename with current configuration settings
+        config_suffix = f"_fm{config.FREQUENCY_MIN}_fx{config.FREQUENCY_MAX}_am{config.AMPLITUDE_MIN}_ax{config.AMPLITUDE_MAX}_lh{config.LINE_HEIGHT}"
+        # Replace dots with 'p' to avoid file extension confusion
+        config_suffix = config_suffix.replace('.', 'p')
+        download_filename = f"{file_id}{config_suffix}.svg"
+
+        return send_file(svg_path, as_attachment=True, download_name=download_filename)
     else:
         return jsonify({'error': 'File not found'}), 404
 

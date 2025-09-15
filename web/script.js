@@ -90,8 +90,8 @@ class ImageWaveApp {
 
         // Download button
         this.downloadBtn.addEventListener('click', () => {
-            if (this.currentData && this.currentData.svg_file) {
-                window.open(this.currentData.svg_file, '_blank');
+            if (this.currentData && this.currentData.id) {
+                window.open(`/download/${this.currentData.id}`, '_blank');
             }
         });
 
