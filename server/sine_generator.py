@@ -128,7 +128,12 @@ class SineGenerator:
             # Calculate sine value using accumulated phase with variable amplitude
             amplitude_factor = self.amplitude_mapper.get_amplitude_factor(intensity)
             amplitude = self.line_height * amplitude_factor
-            y_coords[sample_idx] = base_y + amplitude * np.sin(phase)
+
+            # Handle zero frequency as a flat line
+            if frequency <= 0.001:  # Treat very small frequencies as zero
+                y_coords[sample_idx] = base_y
+            else:
+                y_coords[sample_idx] = base_y + amplitude * np.sin(phase)
             
             prev_frequency = frequency
             
