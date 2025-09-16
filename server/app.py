@@ -147,7 +147,7 @@ def handle_config():
 
         # Reinitialize processors with new configuration
         global image_processor, sine_generator, svg_generator
-        image_processor = ImageProcessor()
+        image_processor = ImageProcessor(line_height=config.LINE_HEIGHT)
         sine_generator = SineGenerator(
             line_height=config.LINE_HEIGHT,
             frequency_min=config.FREQUENCY_MIN,

@@ -187,7 +187,9 @@ class ImageWaveApp {
         
         // Load and display SVG
         try {
-            const svgResponse = await fetch(data.svg_file);
+            // Add cache-busting timestamp to prevent browser caching issues
+            const svgUrl = `${data.svg_file}?t=${Date.now()}`;
+            const svgResponse = await fetch(svgUrl);
             const svgContent = await svgResponse.text();
             this.svgViewer.innerHTML = svgContent;
         } catch (error) {
@@ -207,9 +209,19 @@ class ImageWaveApp {
             this.computeAgainBtn.style.display = 'inline-block';
         }
 
-        // Initialize viewer controls
+        // Initialize viewer controls after SVG is loaded
         if (window.viewer) {
-            window.viewer.initialize();
+            // Clear any existing transforms on SVG before reinitializing
+            const svgElement = this.svgViewer.querySelector('svg');
+            if (svgElement) {
+                svgElement.style.transform = '';
+                svgElement.style.transformOrigin = '';
+            }
+
+            // Use setTimeout to ensure SVG is fully rendered in DOM
+            setTimeout(() => {
+                window.viewer.initialize();
+            }, 100);
         }
     }
 
