@@ -11,8 +11,8 @@ FREQUENCY_MIN = 0.1   # Minimum frequency (for intensity 255)
 FREQUENCY_MAX = 1.0   # Maximum frequency (for intensity 0)
 
 # Line Width Mapping (based on intensity)
-WIDTH_MIN = 0.5   # Minimum line width (for high intensity/bright areas)
-WIDTH_MAX = 2.0   # Maximum line width (for low intensity/dark areas)
+WIDTH_MIN = 1   # Minimum line width (for high intensity/bright areas)
+WIDTH_MAX = 1   # Maximum line width (for low intensity/dark areas)
 
 # SVG Generation Parameters
 SVG_STROKE_WIDTH = 1    # SVG stroke width (default: 1)
