@@ -30,7 +30,6 @@ class ImageWaveApp {
         this.widthMaxInput = document.getElementById('widthMax');
         this.lineHeightInput = document.getElementById('lineHeight');
         this.updateConfigBtn = document.getElementById('updateConfig');
-        this.computeAgainBtn = document.getElementById('computeAgain');
         this.resetConfigBtn = document.getElementById('resetConfig');
         this.statusLine = document.getElementById('statusLine');
 
@@ -115,10 +114,6 @@ class ImageWaveApp {
 
         this.updateConfigBtn.addEventListener('click', () => {
             this.updateConfiguration();
-        });
-
-        this.computeAgainBtn.addEventListener('click', () => {
-            this.reprocessImage();
         });
 
         this.resetConfigBtn.addEventListener('click', () => {
@@ -214,11 +209,6 @@ class ImageWaveApp {
         // Hide status after successful completion
         this.hideStatus();
 
-        // Show compute again button if we have data
-        if (this.currentData) {
-            this.computeAgainBtn.style.display = 'inline-block';
-        }
-
         // Initialize viewer controls after SVG is loaded
         if (window.viewer) {
             // Clear any existing transforms on SVG before reinitializing
@@ -311,12 +301,13 @@ class ImageWaveApp {
                 const result = await response.json();
                 console.log('Update result:', result);
                 this.showStatus('Configuration updated successfully!', 'success');
-                // Show compute again button if we have data
+                // Automatically recompute if we have data
                 if (this.currentData) {
-                    this.computeAgainBtn.style.display = 'inline-block';
+                    await this.reprocessImage();
+                } else {
+                    // Hide status after 3 seconds if no recomputation
+                    setTimeout(() => this.hideStatus(), 3000);
                 }
-                // Hide status after 3 seconds
-                setTimeout(() => this.hideStatus(), 3000);
             } else {
                 const error = await response.text();
                 console.error('Update failed:', error);
