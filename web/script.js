@@ -290,7 +290,7 @@ class ImageWaveApp {
         }
 
         if (config.width_min >= config.width_max) {
-            alert('Width Min must be less than Width Max');
+            alert('Stroke Width Min must be less than Stroke Width Max');
             return;
         }
 
