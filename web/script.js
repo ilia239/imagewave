@@ -32,6 +32,7 @@ class ImageWaveApp {
         this.updateConfigBtn = document.getElementById('updateConfig');
         this.computeAgainBtn = document.getElementById('computeAgain');
         this.resetConfigBtn = document.getElementById('resetConfig');
+        this.statusLine = document.getElementById('statusLine');
 
         // Default configuration values
         this.defaultConfig = {
@@ -127,13 +128,14 @@ class ImageWaveApp {
 
     async handleFileUpload(file) {
         console.log('handleFileUpload called with:', file.name, file.type, file.size);
-        
+
         if (!this.isValidImageFile(file)) {
             alert('Please select a valid image file (PNG, JPG, JPEG, GIF, BMP, TIFF)');
             return;
         }
 
         console.log('File is valid, starting upload...');
+        this.showStatus('Converting image to wave patterns...', 'processing');
         this.showLoading();
 
         try {
@@ -166,6 +168,7 @@ class ImageWaveApp {
             console.error('Upload error:', error);
             alert(`Error: ${error.message}`);
             this.hideLoading();
+            this.hideStatus();
         }
     }
 
@@ -207,6 +210,9 @@ class ImageWaveApp {
 
         // Show viewer
         this.viewerSection.style.display = 'block';
+
+        // Hide status after successful completion
+        this.hideStatus();
 
         // Show compute again button if we have data
         if (this.currentData) {
@@ -289,10 +295,6 @@ class ImageWaveApp {
             return;
         }
 
-        if (config.width_min >= config.width_max) {
-            alert('Stroke Width Min must be less than Stroke Width Max');
-            return;
-        }
 
         try {
             console.log('Sending POST request to /config');
@@ -308,11 +310,13 @@ class ImageWaveApp {
             if (response.ok) {
                 const result = await response.json();
                 console.log('Update result:', result);
-                alert('Configuration updated successfully!');
+                this.showStatus('Configuration updated successfully!', 'success');
                 // Show compute again button if we have data
                 if (this.currentData) {
                     this.computeAgainBtn.style.display = 'inline-block';
                 }
+                // Hide status after 3 seconds
+                setTimeout(() => this.hideStatus(), 3000);
             } else {
                 const error = await response.text();
                 console.error('Update failed:', error);
@@ -330,6 +334,7 @@ class ImageWaveApp {
             return;
         }
 
+        this.showStatus('Recomputing with new configuration...', 'processing');
         this.showLoading();
 
         try {
@@ -349,12 +354,28 @@ class ImageWaveApp {
             console.error('Reprocessing error:', error);
             alert(`Error: ${error.message}`);
             this.hideLoading();
+            this.hideStatus();
         }
     }
 
     async resetConfiguration() {
         this.populateConfigInputs(this.defaultConfig);
         await this.updateConfiguration();
+    }
+
+    showStatus(message, type = 'info') {
+        this.statusLine.textContent = message;
+        this.statusLine.className = 'status-line';
+        if (type === 'success') {
+            this.statusLine.classList.add('success');
+        } else if (type === 'processing') {
+            this.statusLine.classList.add('processing');
+        }
+        this.statusLine.style.display = 'block';
+    }
+
+    hideStatus() {
+        this.statusLine.style.display = 'none';
     }
 }
 
