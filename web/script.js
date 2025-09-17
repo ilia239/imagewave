@@ -35,13 +35,13 @@ class ImageWaveApp {
 
         // Default configuration values
         this.defaultConfig = {
-            frequency_min: 0.001,
-            frequency_max: 3.0,
-            amplitude_min: 0.01,
-            amplitude_max: 0.9,
-            width_min: 0.5,
-            width_max: 2.0,
-            line_height: 32
+            frequency_min: 0.1,
+            frequency_max: 1.0,
+            amplitude_min: 0.1,
+            amplitude_max: 0.48,
+            stroke_width_min: 1.0,
+            stroke_width_max: 1.0,
+            line_height: 4
         };
     }
 
@@ -256,8 +256,8 @@ class ImageWaveApp {
         this.frequencyMaxInput.value = config.frequency_max;
         this.amplitudeMinInput.value = config.amplitude_min;
         this.amplitudeMaxInput.value = config.amplitude_max;
-        this.widthMinInput.value = config.width_min;
-        this.widthMaxInput.value = config.width_max;
+        this.widthMinInput.value = config.stroke_width_min;
+        this.widthMaxInput.value = config.stroke_width_max;
         this.lineHeightInput.value = config.line_height;
         console.log('Config inputs populated');
     }
@@ -273,8 +273,8 @@ class ImageWaveApp {
             frequency_max: parseFloat(this.frequencyMaxInput.value),
             amplitude_min: parseFloat(this.amplitudeMinInput.value),
             amplitude_max: parseFloat(this.amplitudeMaxInput.value),
-            width_min: parseFloat(this.widthMinInput.value),
-            width_max: parseFloat(this.widthMaxInput.value),
+            stroke_width_min: parseFloat(this.widthMinInput.value),
+            stroke_width_max: parseFloat(this.widthMaxInput.value),
             line_height: parseInt(this.lineHeightInput.value)
         };
 

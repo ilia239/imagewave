@@ -3,7 +3,7 @@ import logging
 from frequency_mapper import FrequencyMapper
 from amplitude_mapper import AmplitudeMapper
 from width_mapper import WidthMapper
-from config.config import LINE_HEIGHT, AMPLITUDE, FREQUENCY_MIN, FREQUENCY_MAX, AMPLITUDE_MIN, AMPLITUDE_MAX, WIDTH_MIN, WIDTH_MAX
+from config.config import LINE_HEIGHT, AMPLITUDE, FREQUENCY_MIN, FREQUENCY_MAX, AMPLITUDE_MIN, AMPLITUDE_MAX, STROKE_WIDTH_MIN, STROKE_WIDTH_MAX
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +20,8 @@ class SineGenerator:
         freq_max = frequency_max if frequency_max is not None else FREQUENCY_MAX
         amp_min = amplitude_min if amplitude_min is not None else AMPLITUDE_MIN
         amp_max = amplitude_max if amplitude_max is not None else AMPLITUDE_MAX
-        w_min = width_min if width_min is not None else WIDTH_MIN
-        w_max = width_max if width_max is not None else WIDTH_MAX
+        w_min = width_min if width_min is not None else STROKE_WIDTH_MIN
+        w_max = width_max if width_max is not None else STROKE_WIDTH_MAX
 
         self.frequency_mapper = FrequencyMapper(freq_min, freq_max)
         self.amplitude_mapper = AmplitudeMapper(amp_min, amp_max)

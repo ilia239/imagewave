@@ -15,8 +15,8 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 2024 * 2024  # 16MB max file size
 # Initialize processors
 image_processor = ImageProcessor()
 sine_generator = SineGenerator(
-    width_min=config.WIDTH_MIN,
-    width_max=config.WIDTH_MAX
+    width_min=config.STROKE_WIDTH_MIN,
+    width_max=config.STROKE_WIDTH_MAX
 )
 svg_generator = SVGGenerator()
 
@@ -112,7 +112,7 @@ def download_svg(file_id):
     svg_path = f"uploads/{file_id}.svg"
     if os.path.exists(svg_path):
         # Create filename with current configuration settings
-        config_suffix = f"_fm{config.FREQUENCY_MIN}_fx{config.FREQUENCY_MAX}_am{config.AMPLITUDE_MIN}_ax{config.AMPLITUDE_MAX}_sm{config.WIDTH_MIN}_sx{config.WIDTH_MAX}_lh{config.LINE_HEIGHT}"
+        config_suffix = f"_fm{config.FREQUENCY_MIN}_fx{config.FREQUENCY_MAX}_am{config.AMPLITUDE_MIN}_ax{config.AMPLITUDE_MAX}_sm{config.STROKE_WIDTH_MIN}_sx{config.STROKE_WIDTH_MAX}_lh{config.LINE_HEIGHT}"
         # Replace dots with 'p' to avoid file extension confusion
         config_suffix = config_suffix.replace('.', 'p')
         download_filename = f"{file_id}{config_suffix}.svg"
@@ -131,8 +131,8 @@ def handle_config():
             'amplitude_max': config.AMPLITUDE_MAX,
             'frequency_min': config.FREQUENCY_MIN,
             'frequency_max': config.FREQUENCY_MAX,
-            'width_min': config.WIDTH_MIN,
-            'width_max': config.WIDTH_MAX
+            'stroke_width_min': config.STROKE_WIDTH_MIN,
+            'stroke_width_max': config.STROKE_WIDTH_MAX
         })
 
     elif request.method == 'POST':
@@ -147,10 +147,10 @@ def handle_config():
             config.FREQUENCY_MIN = float(data['frequency_min'])
         if 'frequency_max' in data:
             config.FREQUENCY_MAX = float(data['frequency_max'])
-        if 'width_min' in data:
-            config.WIDTH_MIN = float(data['width_min'])
-        if 'width_max' in data:
-            config.WIDTH_MAX = float(data['width_max'])
+        if 'stroke_width_min' in data:
+            config.STROKE_WIDTH_MIN = float(data['stroke_width_min'])
+        if 'stroke_width_max' in data:
+            config.STROKE_WIDTH_MAX = float(data['stroke_width_max'])
         if 'line_height' in data:
             config.LINE_HEIGHT = int(data['line_height'])
 
@@ -163,8 +163,8 @@ def handle_config():
             frequency_max=config.FREQUENCY_MAX,
             amplitude_min=config.AMPLITUDE_MIN,
             amplitude_max=config.AMPLITUDE_MAX,
-            width_min=config.WIDTH_MIN,
-            width_max=config.WIDTH_MAX
+            width_min=config.STROKE_WIDTH_MIN,
+            width_max=config.STROKE_WIDTH_MAX
         )
         svg_generator = SVGGenerator()
 
