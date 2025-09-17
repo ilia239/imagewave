@@ -14,7 +14,10 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 2024 * 2024  # 16MB max file size
 
 # Initialize processors
 image_processor = ImageProcessor()
-sine_generator = SineGenerator()
+sine_generator = SineGenerator(
+    width_min=config.WIDTH_MIN,
+    width_max=config.WIDTH_MAX
+)
 svg_generator = SVGGenerator()
 
 # Allowed file extensions
@@ -127,7 +130,9 @@ def handle_config():
             'amplitude_min': config.AMPLITUDE_MIN,
             'amplitude_max': config.AMPLITUDE_MAX,
             'frequency_min': config.FREQUENCY_MIN,
-            'frequency_max': config.FREQUENCY_MAX
+            'frequency_max': config.FREQUENCY_MAX,
+            'width_min': config.WIDTH_MIN,
+            'width_max': config.WIDTH_MAX
         })
 
     elif request.method == 'POST':
@@ -142,6 +147,10 @@ def handle_config():
             config.FREQUENCY_MIN = float(data['frequency_min'])
         if 'frequency_max' in data:
             config.FREQUENCY_MAX = float(data['frequency_max'])
+        if 'width_min' in data:
+            config.WIDTH_MIN = float(data['width_min'])
+        if 'width_max' in data:
+            config.WIDTH_MAX = float(data['width_max'])
         if 'line_height' in data:
             config.LINE_HEIGHT = int(data['line_height'])
 
@@ -153,7 +162,9 @@ def handle_config():
             frequency_min=config.FREQUENCY_MIN,
             frequency_max=config.FREQUENCY_MAX,
             amplitude_min=config.AMPLITUDE_MIN,
-            amplitude_max=config.AMPLITUDE_MAX
+            amplitude_max=config.AMPLITUDE_MAX,
+            width_min=config.WIDTH_MIN,
+            width_max=config.WIDTH_MAX
         )
         svg_generator = SVGGenerator()
 

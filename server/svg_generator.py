@@ -103,41 +103,92 @@ class SVGGenerator:
         svg.setAttribute('viewBox', f"0 0 {width} {height}")
         svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
         doc.appendChild(svg)
-        
+
         # Create a single group for all paths
         group = doc.createElement('g')
         group.setAttribute('stroke', self.stroke_color)
-        group.setAttribute('stroke-width', str(self.stroke_width))
         group.setAttribute('fill', 'none')
+        # Note: Don't set stroke-width here since we'll use variable widths
         svg.appendChild(group)
-        
-        # Add optimized paths
+
+        # Add optimized paths with variable widths
         for wave_data in sine_waves:
-            path = doc.createElement('path')
-            path_data = self._generate_optimized_path_data(wave_data)
-            path.setAttribute('d', path_data)
-            group.appendChild(path)
-        
+            if 'widths' in wave_data and wave_data.get('varying_widths', False):
+                # Use variable width path creation
+                self._create_variable_width_paths(doc, wave_data, group)
+            else:
+                # Fallback to single path with default width
+                path = doc.createElement('path')
+                path.setAttribute('stroke-width', str(self.stroke_width))
+                path_data = self._generate_optimized_path_data(wave_data)
+                path.setAttribute('d', path_data)
+                group.appendChild(path)
+
         return doc.toprettyxml(indent="  ")
     
     def _generate_optimized_path_data(self, wave_data):
         """Generate optimized path data with fewer points"""
         x_coords = wave_data['x_coords']
         y_coords = wave_data['y_coords']
-        
+
         step = 1
         # Reduce points significantly for smaller file size
         # step = max(1, len(x_coords) // 50)
         # if step > 1:
         #     x_coords = x_coords[::step]
         #     y_coords = y_coords[::step]
-        
+
         if len(x_coords) == 0:
             return ""
-        
+
         path_parts = [f"M{x_coords[0]:.1f},{y_coords[0]:.1f}"]
-        
+
         for i in range(1, len(x_coords)):
             path_parts.append(f"L{x_coords[i]:.1f},{y_coords[i]:.1f}")
-        
+
         return " ".join(path_parts)
+
+    def _create_variable_width_paths(self, doc, wave_data, group):
+        """Create multiple path segments with different stroke widths"""
+        x_coords = wave_data['x_coords']
+        y_coords = wave_data['y_coords']
+        widths = wave_data.get('widths', [])
+
+        if len(widths) == 0:
+            # Fallback to single path if no width data
+            path = doc.createElement('path')
+            path_data = self._generate_optimized_path_data(wave_data)
+            path.setAttribute('d', path_data)
+            group.appendChild(path)
+            return
+
+        # Group consecutive points with similar widths
+        width_threshold = 0.1  # Minimum width difference to create new segment
+
+        current_width = widths[0]
+        segment_start = 0
+
+        for i in range(1, len(widths)):
+            if abs(widths[i] - current_width) > width_threshold or i == len(widths) - 1:
+                # Create path segment for current group
+                end_idx = i if i == len(widths) - 1 else i
+
+                if end_idx > segment_start:
+                    path = doc.createElement('path')
+                    path.setAttribute('stroke-width', f"{current_width:.2f}")
+
+                    # Create path data for this segment
+                    segment_x = x_coords[segment_start:end_idx + 1]
+                    segment_y = y_coords[segment_start:end_idx + 1]
+
+                    if len(segment_x) > 0:
+                        path_parts = [f"M{segment_x[0]:.1f},{segment_y[0]:.1f}"]
+                        for j in range(1, len(segment_x)):
+                            path_parts.append(f"L{segment_x[j]:.1f},{segment_y[j]:.1f}")
+
+                        path.setAttribute('d', " ".join(path_parts))
+                        group.appendChild(path)
+
+                # Start new segment
+                current_width = widths[i]
+                segment_start = i
