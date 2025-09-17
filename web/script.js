@@ -181,12 +181,12 @@ class ImageWaveApp {
         this.loading.style.display = 'none';
     }
 
-    async displayResults(data) {
+    async displayResults(data, viewState = null) {
         this.hideLoading();
 
         // Set original image
         this.originalImage.src = data.original_image;
-        
+
         // Load and display SVG
         try {
             // Add cache-busting timestamp to prevent browser caching issues
@@ -220,7 +220,13 @@ class ImageWaveApp {
 
             // Use setTimeout to ensure SVG is fully rendered in DOM
             setTimeout(() => {
-                window.viewer.initialize();
+                if (viewState) {
+                    // Preserve view state if provided (e.g., after reprocessing)
+                    window.viewer.initializeWithViewState(viewState);
+                } else {
+                    // Normal initialization (e.g., first upload)
+                    window.viewer.initialize();
+                }
             }, 100);
         }
     }
@@ -303,7 +309,9 @@ class ImageWaveApp {
                 this.showStatus('Configuration updated successfully!', 'success');
                 // Automatically recompute if we have data
                 if (this.currentData) {
-                    await this.reprocessImage();
+                    // Preserve current view state before reprocessing
+                    const viewState = window.viewer ? window.viewer.preserveViewState() : null;
+                    await this.reprocessImage(viewState);
                 } else {
                     // Hide status after 3 seconds if no recomputation
                     setTimeout(() => this.hideStatus(), 3000);
@@ -319,7 +327,7 @@ class ImageWaveApp {
         }
     }
 
-    async reprocessImage() {
+    async reprocessImage(viewState = null) {
         if (!this.currentData || !this.currentData.id) {
             alert('No image to reprocess');
             return;
@@ -336,7 +344,7 @@ class ImageWaveApp {
             if (response.ok) {
                 const data = await response.json();
                 this.currentData = { ...this.currentData, ...data };
-                await this.displayResults(this.currentData);
+                await this.displayResults(this.currentData, viewState);
             } else {
                 const error = await response.json();
                 throw new Error(error.error || 'Reprocessing failed');

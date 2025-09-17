@@ -13,6 +13,23 @@
             <p>Convert images to wave-based SVG stencils for eau-forte</p>
         </header>
 
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-content">
+                    <div class="upload-icon">📁</div>
+                    <p>Drag & drop an image here or click to browse</p>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <button class="upload-btn" id="chooseFileBtn">
+                        Choose File
+                    </button>
+                </div>
+            </div>
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Converting image to wave patterns...</p>
+            </div>
+        </div>
+
         <div class="config-section">
             <div class="config-header">
                 <h3>Configuration</h3>
@@ -60,23 +77,6 @@
                     <button id="updateConfig" class="config-btn">Update Configuration</button>
                     <button id="resetConfig" class="config-btn secondary">Reset to Defaults</button>
                 </div>
-            </div>
-        </div>
-
-        <div class="upload-section">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-content">
-                    <div class="upload-icon">📁</div>
-                    <p>Drag & drop an image here or click to browse</p>
-                    <input type="file" id="fileInput" accept="image/*" hidden>
-                    <button class="upload-btn" id="chooseFileBtn">
-                        Choose File
-                    </button>
-                </div>
-            </div>
-            <div class="loading" id="loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>Converting image to wave patterns...</p>
             </div>
         </div>
 

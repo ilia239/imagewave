@@ -146,7 +146,7 @@ class DualViewer {
     initialize() {
         // Called when new content is loaded
         this.resetView();
-        
+
         // Ensure images are loaded before applying transformations
         this.originalImage.addEventListener('load', () => {
             this.applyTransformations();
@@ -155,6 +155,59 @@ class DualViewer {
         // Apply transformations to SVG immediately
         setTimeout(() => {
             this.applyTransformations();
+        }, 100);
+    }
+
+    preserveViewState() {
+        // Save current view state for restoration after recomputation
+        return {
+            zoom: this.currentZoom,
+            scrollLeft: this.originalContainer.scrollLeft,
+            scrollTop: this.originalContainer.scrollTop
+        };
+    }
+
+    restoreViewState(viewState) {
+        if (!viewState) return;
+
+        // Restore zoom
+        this.setZoom(viewState.zoom);
+        this.zoomSlider.value = viewState.zoom;
+
+        // Restore scroll position after a brief delay to ensure content is loaded
+        setTimeout(() => {
+            this.originalContainer.scrollLeft = viewState.scrollLeft;
+            this.originalContainer.scrollTop = viewState.scrollTop;
+            this.svgContainer.scrollLeft = viewState.scrollLeft;
+            this.svgContainer.scrollTop = viewState.scrollTop;
+        }, 100);
+    }
+
+    initializeWithViewState(viewState = null) {
+        // Called when new content is loaded, optionally preserving view state
+        if (viewState) {
+            // Don't reset view, preserve the current state
+            this.restoreViewState(viewState);
+        } else {
+            this.resetView();
+        }
+
+        // Ensure images are loaded before applying transformations
+        this.originalImage.addEventListener('load', () => {
+            this.applyTransformations();
+            if (viewState) {
+                // Re-apply view state after image loads
+                setTimeout(() => this.restoreViewState(viewState), 50);
+            }
+        });
+
+        // Apply transformations to SVG immediately
+        setTimeout(() => {
+            this.applyTransformations();
+            if (viewState) {
+                // Re-apply view state after SVG loads
+                setTimeout(() => this.restoreViewState(viewState), 50);
+            }
         }, 100);
     }
 }
